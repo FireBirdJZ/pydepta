@@ -1,7 +1,7 @@
 from __future__ import division
 import copy
 
-from .trees_cython import create_2d_matrix, tree_match
+from trees_cython import create_2d_matrix, tree_match
 
 def tree_size(root):
     """
