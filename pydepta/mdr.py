@@ -1,7 +1,6 @@
 from __future__ import division
 from collections import namedtuple, defaultdict, Counter
 import copy
-from cStringIO import StringIO
 from lxml import etree
 from lxml.html import tostring, fragment_fromstring
 from .trees import SimpleTreeMatch, tree_depth, PartialTreeAligner, SimpleTreeAligner, tree_size
@@ -14,7 +13,7 @@ def element_repr(e):
 
 def region_to_dict(region):
     return {
-        'parent': tostring(region.parent, encoding=unicode, method='html'),
+        'parent': tostring(region.parent, encoding='utf-8', method='html'),
         'start': region.start,
         'k': region.k,
         'covered': region.covered,
@@ -22,7 +21,7 @@ def region_to_dict(region):
     }
 
 def dict_to_region(json_region):
-    parser = etree.HTMLParser(encoding='unicode')
+    parser = etree.HTMLParser(encoding='utf-8')
     parent = fragment_fromstring(json_region['parent'], parser=parser)
     return Region(parent=parent, start=json_region['start'], k=json_region['k'],
                   covered=json_region['covered'],
@@ -42,7 +41,7 @@ class Region(object):
 
     def __getstate__(self):
         odict = self.__dict__.copy()
-        odict['parent'] = tostring(odict['parent'], encoding=unicode, method='html')
+        odict['parent'] = tostring(odict['parent'], encoding='utf-8', method='html')
         odict['start'] = odict['start']
         odict['k'] = odict['k']
         odict['covered'] = odict['covered']
@@ -50,7 +49,7 @@ class Region(object):
         return odict
 
     def __setstate__(self, dict):
-        parser = etree.HTMLParser(encoding='unicode')
+        parser = etree.HTMLParser(encoding='utf-8')
         dict['parent'] = fragment_fromstring(dict['parent'], parser=parser)
         dict['start'] = dict['start']
         dict['k'] = dict['k']
@@ -74,42 +73,42 @@ class Region(object):
         [[2, 3], [4, 5]]
 
         """
-        for i in xrange(self.start, self.start + self.covered, k):
+        for i in range(self.start, self.start + self.covered, k):
             yield self.parent[i:i + k]
 
     def as_html_table(self, headers=None, show_id=False):
         """
         convert the region to a HTML table
         """
-        f = StringIO()
-        print >> f, '<table>'
+        f = ''
+        f += '<table>'
 
         # print headers
         if headers:
-            print >> f, '<tr>'
+            f += '<tr>'
             if isinstance(headers, dict):
                 if show_id:
-                    print >> f, '<th></th>'
+                    f += '<th></th>'
                 for i in range(len(self.items[0])):
-                    print >> f, '<th>%s</th>' %headers.get(i, '')
+                    f += '<th>%s</th>' %headers.get(i, '')
             elif isinstance(headers, list):
                 if show_id:
-                    print >> f, '<th></th>'
+                    f += '<th></th>'
                 for h in headers:
-                    print >> f, '<th>%s</th>' %h
-            print >> f, '</tr>'
+                    f += '<th>%s</th>' %h
+            f += '</tr>'
 
         # print content
         for i, item in enumerate(self.items):
-            print >> f, '<tr>'
+            f += '<tr>'
             if show_id:
-                print >> f, '<td>%s</td>' %(i+1)
+                f += '<td>%s</td>' %(i+1)
             for field in item:
-                print >> f, '<td>%s</td>' %field[0].encode('utf8', 'ignore')
-            print >> f, '</tr>'
-        print >> f, '</table>'
+                f += '<td>%s</td>' %field[0].encode('utf8', 'ignore')
+            f += '</tr>'
+        f += '</table>'
 
-        return f.getvalue()
+        return f
 
     def as_plain_texts(self):
         """
@@ -154,9 +153,9 @@ def pairwise(a, K, start=0):
     >>> list(pairwise([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3, 1))
     [([2], [3]), ([3], [4]), ([4], [5]), ([5], [6]), ([6], [7]), ([7], [8]), ([8], [9]), ([9], [10]), ([3], [4]), ([4], [5]), ([5], [6]), ([6], [7]), ([7], [8]), ([8], [9]), ([9], [10]), ([4], [5]), ([5], [6]), ([6], [7]), ([7], [8]), ([8], [9]), ([9], [10]), ([2, 3], [4, 5]), ([4, 5], [6, 7]), ([6, 7], [8, 9]), ([3, 4], [5, 6]), ([5, 6], [7, 8]), ([7, 8], [9, 10]), ([4, 5], [6, 7]), ([6, 7], [8, 9]), ([2, 3, 4], [5, 6, 7]), ([5, 6, 7], [8, 9, 10]), ([3, 4, 5], [6, 7, 8]), ([4, 5, 6], [7, 8, 9])]
     """
-    for k in xrange(1, K + 1):
-        for i in xrange(0, K):
-            for j in xrange(start+i, len(a), k):
+    for k in range(1, K + 1):
+        for i in range(0, K):
+            for j in range(start+i, len(a), k):
                 slice_a = a[j:j + k]
                 slice_b = a[j + k: j + 2 * k]
 
@@ -177,7 +176,7 @@ class MiningDataRegion(object):
             data_regions.extend(self.identify_regions(0, root, self.max_generalized_nodes, self.threshold, scores))
             covered = set()
             for data_region in data_regions:
-                for i in xrange(data_region.start, data_region.covered):
+                for i in range(data_region.start, data_region.covered):
                     covered.add(data_region.parent[i])
 
             for child in root:
@@ -191,10 +190,10 @@ class MiningDataRegion(object):
         max_region = Region(parent=root, start=0, k=0, covered=0, score=0)
         data_regions = []
 
-        for k in xrange(1, max_generalized_nodes + 1):
-            for i in xrange(0, max_generalized_nodes):
+        for k in range(1, max_generalized_nodes + 1):
+            for i in range(0, max_generalized_nodes):
                 flag = True
-                for j in xrange(start + i, len(root) - k, k):
+                for j in range(start + i, len(root) - k, k):
                     pair = GeneralizedNode(root[j], k), GeneralizedNode(root[j + k], k)
                     score = scores.get(pair)
                     if score >= threshold:
@@ -266,7 +265,7 @@ class MiningDataRecord(object):
         if region.k == 1:
             records = []
             # if all the individual node of children node of Generalized node are similar
-            for i in xrange(region.start, region.start + region.covered):
+            for i in range(region.start, region.start + region.covered):
                 for child1, child2 in pairwise(region.parent[i], 1, 0):
                     sim = self.stm.normalized_match_score(child1, child2)
                     if sim < self.threshold:
@@ -411,10 +410,10 @@ class MiningDataField(object):
         # handle text
         if e is not None:
             if seed.text and seed.text.strip():
-                r.append(Field(self._get_text(e.text), ''))
+                r.append(Field(e.text, ''))
         else:
             if seed.text and seed.text.strip():
-                r.append(Field(u'', ''))
+                r.append(Field('', ''))
 
         # handle children
         for child in seed:
@@ -423,16 +422,9 @@ class MiningDataField(object):
         # handle tail
         if e is not None:
             if seed.tail and seed.tail.strip():
-                r.append(Field(self._get_text(e.tail) or u'', ''))
+                r.append(Field(e.tail or '', ''))
         else:
             if seed.tail and seed.tail.strip():
-                r.append(Field(u'', ''))
+                r.append(Field('', ''))
 
         return r
-
-    def _get_text(self, text):
-        if text != None:
-            if not isinstance(text, unicode):
-                return text.decode('utf8', 'ignore')
-            return text
-        return u''

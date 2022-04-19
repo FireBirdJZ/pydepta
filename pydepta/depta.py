@@ -115,9 +115,9 @@ class Depta(object):
             items, _ = field_finder.align_records(records)
             region.items = items
             if 'verbose' in kwargs:
-                print region
+                print(region)
                 for record in records:
-                    print '\t', record
+                    print('\t', record)
 
         return regions
 
@@ -151,7 +151,7 @@ class Depta(object):
 
         builder = DomTreeBuilder(html)
         doc = builder.build()
-        page = HtmlPage(body=tostring(doc, encoding=unicode, method='html'))
+        page = HtmlPage(body=tostring(doc, encoding='utf-8', method='html'))
 
         return self._scrape_page(page)
 
@@ -162,5 +162,5 @@ class Depta(object):
         return self.scraper._ex.extract(page)[0]
 
     def _region_to_htmlpage(self, region):
-        seed_body = tostring(region.parent[region.start], encoding=unicode, method='html')
+        seed_body = tostring(region.parent[region.start], encoding='utf-8', method='html')
         return HtmlPage(body=seed_body)
