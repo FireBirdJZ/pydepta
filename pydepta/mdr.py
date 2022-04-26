@@ -155,6 +155,10 @@ def pairwise(a, K, start=0):
     """
     for k in range(1, K + 1):
         for i in range(0, K):
+            # slice_a = a[i:i + k]
+            # slice_b = a[i + k: i + 2 * k]
+            # if len(slice_a) >= k and len(slice_b) >= k:
+            #     yield slice_a, slice_b
             for j in range(start+i, len(a), k):
                 slice_a = a[j:j + k]
                 slice_b = a[j + k: j + 2 * k]
@@ -195,7 +199,7 @@ class MiningDataRegion(object):
                 flag = True
                 for j in range(start + i, len(root) - k, k):
                     pair = GeneralizedNode(root[j], k), GeneralizedNode(root[j + k], k)
-                    score = scores.get(pair)
+                    score = scores.get(pair, 0)
                     if score >= threshold:
                         if flag:
                             cur_region.k = k

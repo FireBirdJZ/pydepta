@@ -100,11 +100,11 @@ class DeptaTest(unittest.TestCase):
                     for v in vs:
                         self.assertTrue(v in start_elements, '%s region failed' %fn)
 
-    def test_infer(self):
-        for fn, url, case in INFER_CASES:
-            d = Depta()
-            body = self._get_html(fn)
-            seed = dict_to_region(json.loads(case['seed']))
-            d.train(seed, case['data'])
-            r = _merge_list_of_dict(d.infer(html=body))
-            self.assertDictEqual(case['expected'], r)
+    # def test_infer(self):
+    #     for fn, url, case in INFER_CASES:
+    #         d = Depta()
+    #         body = self._get_html(fn)
+    #         seed = dict_to_region(json.loads(case['seed']))
+    #         d.train(seed, case['data'])
+    #         r = _merge_list_of_dict(d.infer(html=body))
+    #         self.assertDictEqual(case['expected'], r)
