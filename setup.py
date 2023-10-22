@@ -7,6 +7,6 @@ setup(name='pydepta',
       long_description="A Python implementation of DEPTA (Data Extraction with Partial Tree Alignment)",
       author="Terry Peng",
       author_email="pengtaoo@gmail.com",
-      install_requires=['w3lib', 'scrapely', 'lxml'],
+      install_requires=['w3lib', 'lxml'],
       packages=find_packages()
 )
